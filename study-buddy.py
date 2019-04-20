@@ -50,6 +50,7 @@ class MarkdownEngine:
 
 
 
+
 if __name__ == "__main__":
     # parse arguments
     parser = argparse.ArgumentParser(description = "Generate flash cards from a Markdown file.")
