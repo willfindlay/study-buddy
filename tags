@@ -7412,7 +7412,7 @@ __init__	.venv/lib/python3.7/weakref.py	/^    def __init__(*args, **kw):$/;"	m	c
 __init__	.venv/lib/python3.7/weakref.py	/^    def __init__(self, dict=None):$/;"	m	class:WeakKeyDictionary
 __init__	.venv/lib/python3.7/weakref.py	/^    def __init__(self, ob, callback, key):$/;"	m	class:KeyedRef
 __init__	.venv/lib/python3.7/weakref.py	/^    def __init__(self, obj, func, *args, **kwargs):$/;"	m	class:finalize
-__init__	study-buddy.py	/^    def __init__(self, outfile=None):$/;"	m	class:MarkdownEngine
+__init__	study-buddy.py	/^    def __init__(self, outfile=None, infile=None):$/;"	m	class:MarkdownEngine
 __instancecheck__	.venv/lib/python3.7/abc.py	/^        def __instancecheck__(cls, instance):$/;"	m	class:ABCMeta
 __int__	.venv/lib/python3.7/collections/__init__.py	/^    def __int__(self): return int(self.data)$/;"	m	class:UserString
 __int__	.venv/lib/python3.7/site-packages/pip/_vendor/ipaddress.py	/^    def __int__(self):$/;"	m	class:_BaseAddress
@@ -10542,6 +10542,7 @@ args	.venv/include/python3.7m/Python-ast.h	/^            arguments_ty args;$/;"	
 args	.venv/include/python3.7m/Python-ast.h	/^            arguments_ty args;$/;"	m	struct:_stmt::__anon48160897060a::__anon481608970808	typeref:typename:arguments_ty
 args	.venv/include/python3.7m/Python-ast.h	/^            asdl_seq *args;$/;"	m	struct:_expr::__anon481608971d0a::__anon481608972d08	typeref:typename:asdl_seq *
 args	.venv/include/python3.7m/Python-ast.h	/^    asdl_seq *args;$/;"	m	struct:_arguments	typeref:typename:asdl_seq *
+args	study-buddy.py	/^    args = parser.parse_args()$/;"	v
 argument	.venv/include/python3.7m/graminit.h	/^#define argument /;"	d
 arguments	.venv/include/python3.7m/Python-ast.h	/^#define arguments(/;"	d
 arguments_ty	.venv/include/python3.7m/Python-ast.h	/^typedef struct _arguments *arguments_ty;$/;"	t	typeref:struct:_arguments *
@@ -15486,7 +15487,7 @@ mbc	.venv/lib/python3.7/encodings/shift_jis_2004.py	/^import _multibytecodec as 
 mbc	.venv/lib/python3.7/encodings/shift_jisx0213.py	/^import _multibytecodec as mbc$/;"	I
 mbuf	.venv/include/python3.7m/memoryobject.h	/^    _PyManagedBufferObject *mbuf; \/* managed buffer *\/$/;"	m	struct:__anona4f0d4100208	typeref:typename:PyObject_VAR_HEAD _PyManagedBufferObject *
 md5_utf8	.venv/lib/python3.7/site-packages/pip/_vendor/requests/auth.py	/^            def md5_utf8(x):$/;"	f	member:HTTPDigestAuth.build_digest_header	file:
-me	study-buddy.py	/^    me = MarkdownEngine(outfile="test2.pdf")$/;"	v
+me	study-buddy.py	/^    me = MarkdownEngine(outfile=args.out, infile=args.input)$/;"	v
 memoize	.venv/lib/python3.7/site-packages/pip/_vendor/html5lib/_utils.py	/^def memoize(func):$/;"	f
 merge	.venv/lib/python3.7/heapq.py	/^def merge(*iterables, key=None, reverse=False):$/;"	f
 merge_cookies	.venv/lib/python3.7/site-packages/pip/_vendor/requests/cookies.py	/^def merge_cookies(cookiejar, cookies):$/;"	f
@@ -17465,6 +17466,7 @@ set_extraction_path	.venv/lib/python3.7/site-packages/pip/_vendor/pkg_resources/
 set_extraction_path	.venv/lib/python3.7/site-packages/pkg_resources/__init__.py	/^    def set_extraction_path(self, path):$/;"	m	class:ResourceManager
 set_extraction_path	.venv/lib/python3.7/site-packages/pkg_resources/__init__.py	/^set_extraction_path = None$/;"	v
 set_file_position	.venv/lib/python3.7/site-packages/pip/_vendor/urllib3/util/request.py	/^def set_file_position(body, pos):$/;"	f
+set_infile	study-buddy.py	/^    def set_infile(self, infile):$/;"	m	class:MarkdownEngine
 set_iterator	.venv/lib/python3.7/_collections_abc.py	/^set_iterator = type(iter(set()))$/;"	v
 set_loader	.venv/lib/python3.7/importlib/util.py	/^def set_loader(fxn):$/;"	f
 set_loader_wrapper	.venv/lib/python3.7/importlib/util.py	/^    def set_loader_wrapper(self, *args, **kwargs):$/;"	f	function:set_loader	file:
