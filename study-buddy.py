@@ -95,12 +95,14 @@ class MarkdownEngine:
 
         self.parse_cards()
         self.reset_pdf()
-        # FIXME: this should be done by card in self.cards
+
+        # print sections and cards
         for card in self.cards:
             if card.section == True:
                 print_section(card.title)
             else:
                 print_card(card)
+
         self.pdf.output(self.outfile)
 
 
@@ -122,7 +124,7 @@ class MarkdownEngine:
                 cardtitle = re.search(r"^\s*##\s+(.*)", line)
                 text = re.search(r"^\s*[\-\*\+]\s+(.*)", line)
 
-                # perform an operation based on what we found
+                # try to add a section
                 try:
                     section[1]
 
@@ -133,6 +135,8 @@ class MarkdownEngine:
                     continue
                 except TypeError:
                     pass
+
+                # try to add a card
                 try:
                     cardtitle[1]
 
@@ -143,6 +147,8 @@ class MarkdownEngine:
                     continue
                 except TypeError:
                     pass
+
+                # try to add a bullet point
                 try:
                     text[1]
 
@@ -160,15 +166,12 @@ class MarkdownEngine:
 
 
 class Card:
-    def __init__(self, title="Untitled", contents=[], section=False):
+    def __init__(self, title="Untitled", section=False):
         # set title
         self.title = title
 
         # set contents
-        if type(contents) != list:
-                raise Exception("Contents must be a list")
-        else:
-            self.contents = contents
+        self.contents = []
 
         # set section
         self.section = section
@@ -193,6 +196,5 @@ if __name__ == "__main__":
     # create markdown engine
     me = MarkdownEngine(outfile=args.out, infile=args.input)
 
-    card = Card(contents=[])
-
+    # generate flashcards
     me.generate_flashcards()
