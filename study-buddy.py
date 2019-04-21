@@ -5,7 +5,7 @@ import argparse
 from fpdf import FPDF
 
 class MarkdownEngine:
-    def __init__(self, outfile="out.pdf", infile="in.md", debug=False):
+    def __init__(self, outfile="flashcards.pdf", infile="in.md", debug=False):
         # set file for output
         self.set_outfile(outfile)
 
@@ -186,8 +186,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description = "Generate flash cards from a Markdown file.")
     parser.add_argument("input", metavar='INFILE',
             help="Set the filename for input. Extensions are ignored and .md is assumed.")
-    parser.add_argument("-o", "--out", metavar='OUTFILE', default="out.pdf",
-            help="Set the filename for output. Extensions are ignored and .pdf is assumed. (Default: out.pdf)")
+    parser.add_argument("-o", "--out", metavar='OUTFILE', default="flashcards.pdf",
+            help="Set the filename for output. Extensions are ignored and .pdf is assumed. (Default: flashcards.pdf)")
     args = parser.parse_args()
 
     # create markdown engine
