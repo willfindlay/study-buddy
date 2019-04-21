@@ -121,7 +121,7 @@ class MarkdownEngine:
                 # attempt to find section, card, or line
                 section = re.match(r"^\s*#\s+(.*)", line)
                 cardtitle = re.match(r"^\s*##\s+(.*)", line)
-                text = re.match(r"^(\s*)(?:[\-\*\+]|1\.)\s+(.*)", line)
+                text = re.match(r"^(\s*)(?:[\-\*\+]|\d\.|\d\)|\(\d\))\s+(.*)", line)
 
                 # try to add a section
                 try:
