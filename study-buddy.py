@@ -4,21 +4,16 @@ import re
 import argparse
 from fpdf import FPDF
 
-DEBUG = False
-
 class MarkdownEngine:
-    def __init__(self, outfile=None, infile=None):
+    def __init__(self, outfile="out.pdf", infile="in.md", debug=False):
         # set file for output
-        if outfile is None:
-            self.outfile = "out.pdf"
-        else:
-            self.set_outfile(outfile)
+        self.set_outfile(outfile)
 
         # set file for input
-        if infile is None:
-            self.infile = "in.md"
-        else:
-            self.set_infile(infile)
+        self.set_infile(infile)
+
+        # set debug mode
+        self.debug = debug
 
         # create the initial pdf
         self.reset_pdf()
@@ -58,9 +53,9 @@ class MarkdownEngine:
     # reset the PDF object
     def reset_pdf(self):
         # create PDF object
-        self.pdf = FPDF("P", "pt", (360,216))
+        self.pdf = FPDF("L", "pt", (360,576))
         self.pdf.set_font("Arial", size=12)
-        self.pdf.set_margins(30,30)
+        self.pdf.set_margins(40,30)
         return self
 
 
@@ -70,15 +65,15 @@ class MarkdownEngine:
         # prints a big title for a section
         def print_section(title):
             self.pdf.add_page()
-            self.pdf.set_font_size(36)
-            self.pdf.multi_cell(0, 120, txt=title, align="C", border=1 if DEBUG else 0)
+            self.pdf.set_font_size(20)
+            self.pdf.multi_cell(0, 20, txt=title, align="C", border=1 if self.debug else 0)
             self.pdf.set_font_size(12)
 
         # print the title of a card
         def print_title(card):
             self.pdf.add_page()
             self.pdf.set_font_size(16)
-            self.pdf.multi_cell(0, 16, txt=card.title, align="C", border=1 if DEBUG else 0)
+            self.pdf.multi_cell(0, 16, txt=card.title, align="C", border=1 if self.debug else 0)
             self.pdf.ln()
             self.pdf.set_font_size(12)
 
@@ -94,40 +89,95 @@ class MarkdownEngine:
                 for i in range(points+1):
                     line = card.contents[i]
                     # draw bullet point
-                    self.pdf.cell(self.pdf.get_string_width(bullet) + self.pdf.c_margin * 2, 12, txt=bullet, align="L", border=1 if DEBUG else 0)
+                    self.pdf.cell(self.pdf.get_string_width(bullet) + self.pdf.c_margin * 2, 12, txt=bullet, align="L", border=1 if self.debug else 0)
                     # draw text
-                    self.pdf.multi_cell(0, 12, txt=line, align="L", border=1 if DEBUG else 0)
+                    self.pdf.multi_cell(0, 12, txt=line, align="L", border=1 if self.debug else 0)
 
         self.parse_cards()
         self.reset_pdf()
-        print_section("Section")
         # FIXME: this should be done by card in self.cards
-        print_card(Card("test title", ["test contents","test contents","asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd"]))
+        for card in self.cards:
+            if card.section == True:
+                print_section(card.title)
+            else:
+                print_card(card)
         self.pdf.output(self.outfile)
 
 
 
     def parse_cards(self):
-        # TODO: implement me! should parse cards from input file
-        pass
+        # TODO: implement me! should parse cards from input file and add them to self.cards
+        # reset cards
+        self.cards = []
+
+        # read in card from the file
+        with open(self.infile) as f:
+            # set card to None for now
+            card = None
+            for line in f:
+                line = line.strip()
+
+                # attempt to find section, card, or line
+                section = re.search(r"^\s*#\s+(.*)", line)
+                cardtitle = re.search(r"^\s*##\s+(.*)", line)
+                text = re.search(r"^\s*[\-\*\+]\s+(.*)", line)
+
+                # perform an operation based on what we found
+                try:
+                    section[1]
+
+                    card = Card(title=section[1], section=True)
+                    self.cards.append(card)
+                    card = None
+
+                    continue
+                except TypeError:
+                    pass
+                try:
+                    cardtitle[1]
+
+                    if card is not None:
+                        self.cards.append(card)
+                    card = Card(title=cardtitle[1])
+
+                    continue
+                except TypeError:
+                    pass
+                try:
+                    text[1]
+
+                    if card is not None:
+                        card.add_point(text[1])
+
+                    continue
+                except TypeError:
+                    pass
+
+            # append last card
+            if card is not None:
+                self.cards.append(card)
 
 
 
 class Card:
-    def __init__(self, title=None, contents=None):
+    def __init__(self, title="Untitled", contents=[], section=False):
         # set title
-        if title is None:
-            self.title = "Untitled"
-        else:
-            self.title = title
+        self.title = title
 
         # set contents
-        if contents is None:
-            self.contents = []
+        if type(contents) != list:
+                raise Exception("Contents must be a list")
         else:
-            if type(contents) != list:
-                raise Exception("Conents must be a list")
             self.contents = contents
+
+        # set section
+        self.section = section
+
+
+
+    # add a bullet point to card contents
+    def add_point(self, point):
+        self.contents.append(str(point))
 
 
 
