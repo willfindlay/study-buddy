@@ -65,16 +65,24 @@ class MarkdownEngine:
         # prints a big title for a section
         def print_section(title):
             self.pdf.add_page()
-            self.pdf.set_font_size(20)
-            self.pdf.multi_cell(0, 20, txt=title, align="C", border=1 if self.debug else 0)
+            self.pdf.set_font_size(30)
+            self.pdf.multi_cell(0, 30, txt=title, align="C", border=1 if self.debug else 0)
             self.pdf.set_font_size(12)
 
         # print the title of a card
         def print_title(card):
             self.pdf.add_page()
-            self.pdf.set_font_size(16)
-            self.pdf.multi_cell(0, 16, txt=card.title, align="C", border=1 if self.debug else 0)
+            self.pdf.set_font_size(20)
+            self.pdf.multi_cell(0, 20, txt=card.title, align="C", border=1 if self.debug else 0)
             self.pdf.ln()
+            self.pdf.set_font_size(12)
+
+        # print a subsection
+        def print_subsection(subsection, first=False):
+            if not first:
+                self.pdf.ln()
+            self.pdf.set_font_size(16)
+            self.pdf.multi_cell(0, 16, txt=subsection.text, align="L", border=1 if self.debug else 0)
             self.pdf.set_font_size(12)
 
         # print the actual card itself
@@ -87,13 +95,16 @@ class MarkdownEngine:
             print_title(card)
             for i in range(len(card.contents)):
                 line = card.contents[i]
-                spacing = card.spacing[i]
-                # add spacing
-                self.pdf.cell(self.pdf.get_string_width(spacing) + self.pdf.c_margin * 2, 14, txt=spacing, align="L", border=1 if self.debug else 0)
-                # draw bullet point
-                self.pdf.cell(self.pdf.get_string_width(bullet) + self.pdf.c_margin * 2, 14, txt=bullet, align="L", border=1 if self.debug else 0)
-                # draw text
-                self.pdf.multi_cell(0, 14, txt=line, align="L", border=1 if self.debug else 0)
+                if type(line) == Subsection:
+                    print_subsection(line, i == 0)
+                else:
+                    spacing = card.spacing[i]
+                    # add spacing
+                    self.pdf.cell(self.pdf.get_string_width(spacing) + self.pdf.c_margin * 2, 14, txt=spacing, align="L", border=1 if self.debug else 0)
+                    # draw bullet point
+                    self.pdf.cell(self.pdf.get_string_width(bullet) + self.pdf.c_margin * 2, 14, txt=bullet, align="L", border=1 if self.debug else 0)
+                    # draw text
+                    self.pdf.multi_cell(0, 14, txt=line, align="L", border=1 if self.debug else 0)
 
         self.parse_cards()
         self.reset_pdf()
@@ -121,6 +132,7 @@ class MarkdownEngine:
                 # attempt to find section, card, or line
                 section = re.match(r"^\s*#\s+(.*)", line)
                 cardtitle = re.match(r"^\s*##\s+(.*)", line)
+                subsection = re.match(r"^\s*####*\s+(.*)", line)
                 text = re.match(r"^(\s*)(?:[\-\*\+]|\d\.|\d\)|\(\d\))\s+(.*)", line)
 
                 # try to add a section
@@ -142,6 +154,17 @@ class MarkdownEngine:
                     if card is not None:
                         self.cards.append(card)
                     card = Card(title=cardtitle[1])
+
+                    continue
+                except TypeError:
+                    pass
+
+                # try to add a subsection
+                try:
+                    subsection[1]
+
+                    if card is not None:
+                        card.add_point("", Subsection(subsection[1]))
 
                     continue
                 except TypeError:
@@ -183,7 +206,13 @@ class Card:
     # add a bullet point to card contents
     def add_point(self, spacing, point):
         self.spacing.append(spacing)
-        self.contents.append(str(point))
+        self.contents.append(point)
+
+
+
+class Subsection:
+    def __init__(self, text):
+        self.text = text
 
 
 
