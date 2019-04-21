@@ -4,6 +4,8 @@ import re
 import argparse
 from fpdf import FPDF
 
+DEBUG = False
+
 class MarkdownEngine:
     def __init__(self, outfile=None, infile=None):
         # set file for output
@@ -18,8 +20,11 @@ class MarkdownEngine:
         else:
             self.set_infile(infile)
 
-        # create PDF object
-        self.pdf = FPDF()
+        # create the initial pdf
+        self.reset_pdf()
+
+        # set cards array to empty
+        self.cards = []
 
 
     # set the file for output
@@ -50,6 +55,81 @@ class MarkdownEngine:
 
 
 
+    # reset the PDF object
+    def reset_pdf(self):
+        # create PDF object
+        self.pdf = FPDF("P", "pt", (360,216))
+        self.pdf.set_font("Arial", size=12)
+        self.pdf.set_margins(30,30)
+        return self
+
+
+
+    # generate the flashcards
+    def generate_flashcards(self):
+        # prints a big title for a section
+        def print_section(title):
+            self.pdf.add_page()
+            self.pdf.set_font_size(36)
+            self.pdf.multi_cell(0, 120, txt=title, align="C", border=1 if DEBUG else 0)
+            self.pdf.set_font_size(12)
+
+        # print the title of a card
+        def print_title(card):
+            self.pdf.add_page()
+            self.pdf.set_font_size(16)
+            self.pdf.multi_cell(0, 16, txt=card.title, align="C", border=1 if DEBUG else 0)
+            self.pdf.ln()
+            self.pdf.set_font_size(12)
+
+        # print the actual card itself
+        def print_card(card):
+            # set bullet point character
+            bullet = chr(149)
+            # add page without answers
+            print_title(card)
+            # add page with answers
+            for points in range(len(card.contents)):
+                print_title(card)
+                for i in range(points+1):
+                    line = card.contents[i]
+                    # draw bullet point
+                    self.pdf.cell(self.pdf.get_string_width(bullet) + self.pdf.c_margin * 2, 12, txt=bullet, align="L", border=1 if DEBUG else 0)
+                    # draw text
+                    self.pdf.multi_cell(0, 12, txt=line, align="L", border=1 if DEBUG else 0)
+
+        self.parse_cards()
+        self.reset_pdf()
+        print_section("Section")
+        # FIXME: this should be done by card in self.cards
+        print_card(Card("test title", ["test contents","test contents","asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd"]))
+        self.pdf.output(self.outfile)
+
+
+
+    def parse_cards(self):
+        # TODO: implement me! should parse cards from input file
+        pass
+
+
+
+class Card:
+    def __init__(self, title=None, contents=None):
+        # set title
+        if title is None:
+            self.title = "Untitled"
+        else:
+            self.title = title
+
+        # set contents
+        if contents is None:
+            self.contents = []
+        else:
+            if type(contents) != list:
+                raise Exception("Conents must be a list")
+            self.contents = contents
+
+
 
 if __name__ == "__main__":
     # parse arguments
@@ -62,3 +142,7 @@ if __name__ == "__main__":
 
     # create markdown engine
     me = MarkdownEngine(outfile=args.out, infile=args.input)
+
+    card = Card(contents=[])
+
+    me.generate_flashcards()
