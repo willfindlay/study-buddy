@@ -7,8 +7,8 @@ Study Buddy is a simple flashcard generator which parses your markdown files and
 ## How to install?
 
 1. `$ git clone https://github.com/HousedHorse/study-buddy`
-1. `cd study-buddy`
-1. `sudo make install`
+1. `$ cd study-buddy`
+1. `$ sudo make install`
 
 ## How to use it?
 
