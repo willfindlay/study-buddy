@@ -149,7 +149,6 @@ class MarkdownEngine:
 
                 # try to add a bullet point
                 try:
-                    print(text[1], text[2])
                     text[2]
 
                     if card is not None:
