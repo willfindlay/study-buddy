@@ -16,7 +16,7 @@ Once you have installed, just run `$ study-budy <file.md>`.
 
 Your markdown file should look like the following:
 
-```{md}
+``` markdown
 # Section Name
 
 ## Card Name
