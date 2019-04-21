@@ -84,14 +84,16 @@ class MarkdownEngine:
             # add page without answers
             print_title(card)
             # add page with answers
-            for points in range(len(card.contents)):
-                print_title(card)
-                for i in range(points+1):
-                    line = card.contents[i]
-                    # draw bullet point
-                    self.pdf.cell(self.pdf.get_string_width(bullet) + self.pdf.c_margin * 2, 12, txt=bullet, align="L", border=1 if self.debug else 0)
-                    # draw text
-                    self.pdf.multi_cell(0, 12, txt=line, align="L", border=1 if self.debug else 0)
+            print_title(card)
+            for i in range(len(card.contents)):
+                line = card.contents[i]
+                spacing = card.spacing[i]
+                # add spacing
+                self.pdf.cell(self.pdf.get_string_width(spacing) + self.pdf.c_margin * 2, 14, txt=spacing, align="L", border=1 if self.debug else 0)
+                # draw bullet point
+                self.pdf.cell(self.pdf.get_string_width(bullet) + self.pdf.c_margin * 2, 14, txt=bullet, align="L", border=1 if self.debug else 0)
+                # draw text
+                self.pdf.multi_cell(0, 14, txt=line, align="L", border=1 if self.debug else 0)
 
         self.parse_cards()
         self.reset_pdf()
@@ -108,7 +110,6 @@ class MarkdownEngine:
 
 
     def parse_cards(self):
-        # TODO: implement me! should parse cards from input file and add them to self.cards
         # reset cards
         self.cards = []
 
@@ -117,12 +118,10 @@ class MarkdownEngine:
             # set card to None for now
             card = None
             for line in f:
-                line = line.strip()
-
                 # attempt to find section, card, or line
-                section = re.search(r"^\s*#\s+(.*)", line)
-                cardtitle = re.search(r"^\s*##\s+(.*)", line)
-                text = re.search(r"^\s*[\-\*\+]\s+(.*)", line)
+                section = re.match(r"^\s*#\s+(.*)", line)
+                cardtitle = re.match(r"^\s*##\s+(.*)", line)
+                text = re.match(r"^(\s*)(?:[\-\*\+]|1\.)\s+(.*)", line)
 
                 # try to add a section
                 try:
@@ -150,10 +149,11 @@ class MarkdownEngine:
 
                 # try to add a bullet point
                 try:
-                    text[1]
+                    print(text[1], text[2])
+                    text[2]
 
                     if card is not None:
-                        card.add_point(text[1])
+                        card.add_point(text[1], text[2])
 
                     continue
                 except TypeError:
@@ -173,13 +173,17 @@ class Card:
         # set contents
         self.contents = []
 
+        # set spacing
+        self.spacing = []
+
         # set section
         self.section = section
 
 
 
     # add a bullet point to card contents
-    def add_point(self, point):
+    def add_point(self, spacing, point):
+        self.spacing.append(spacing)
         self.contents.append(str(point))
 
 
@@ -194,7 +198,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # create markdown engine
-    me = MarkdownEngine(outfile=args.out, infile=args.input)
+    me = MarkdownEngine(outfile=args.out, infile=args.input, debug=False)
 
     # generate flashcards
     me.generate_flashcards()
