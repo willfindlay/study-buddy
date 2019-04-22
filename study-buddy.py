@@ -62,6 +62,7 @@ class MarkdownEngine:
 
     # generate the flashcards
     def generate_flashcards(self):
+        print(self.pdf.font_size)
         # prints a big title for a section
         def print_section(title):
             self.pdf.add_page()
