@@ -140,28 +140,6 @@ class MarkdownEngine:
                 except TypeError:
                     point_number = 1
 
-                ## try to add a subsection
-                #try:
-                #    subsection[1]
-
-                #    if card is not None:
-                #        card.add_point("", Subsection(subsection[1]))
-
-                #    continue
-                #except TypeError:
-                #    pass
-
-                ## try to add a bullet point
-                #try:
-                #    text[2]
-
-                #    if card is not None:
-                #        card.add_point(text[1], text[2])
-
-                #    continue
-                #except TypeError:
-                #    pass
-
 if __name__ == "__main__":
     # parse arguments
     parser = argparse.ArgumentParser(description = "Generate flash cards from a Markdown file.")
