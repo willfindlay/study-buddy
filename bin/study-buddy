@@ -1,0 +1,3 @@
+#! /bin/bash
+
+/opt/study-buddy/study-buddy.py
