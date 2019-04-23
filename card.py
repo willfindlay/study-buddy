@@ -36,13 +36,19 @@ class Card:
         self.contents.append(content)
 
     def to_pdf(self, pdf):
+        # keep track of whether conent is first for spacing
+        first = True
         # blank page with just title
         pdf.add_page()
         # page with information
         pdf.add_page()
         # card contents
         for content in self.contents:
-            content.to_pdf(pdf)
+            if type(content) is Subtitle:
+                content.to_pdf(pdf, first=first)
+            else:
+                content.to_pdf(pdf)
+            first = False
 
 class CardContents:
     def __init__(self, text = "NULL"):
@@ -55,7 +61,6 @@ class CardContents:
         raise NotImplementedError("This is an abstract method and has no business being called.")
 
 # a card title
-# TODO: change this to a header in a subclassed FPDF
 class Title(CardContents):
     def to_pdf(self, pdf):
         old_font_size = pdf.font_size
@@ -66,9 +71,12 @@ class Title(CardContents):
 
 # a subtitle within a card
 class Subtitle(CardContents):
-    def to_pdf(self, pdf):
+    def to_pdf(self, pdf, first=False):
         old_font_size = pdf.font_size
         pdf.set_font_size(16)
+        # add a blank space if necessary
+        if not first:
+            pdf.ln()
         pdf.multi_cell(0, 16, txt=self.text, align="L", border=0)
         pdf.set_font_size(old_font_size)
 
@@ -95,6 +103,7 @@ class BulletedPoint(CardContents):
     def draw_point(self, pdf, number=1):
         # set bullet character
         bullet = "".join(["  ",chr(149)])
+        # we want this to be wide enough to match NumberedPoint
         pdf.cell(pdf.get_string_width("99.") + 2 + pdf.c_margin * 2, 14, txt=bullet, align="L", border=0)
 
 # a numbered point
@@ -106,4 +115,5 @@ class NumberedPoint(BulletedPoint):
     def draw_point(self, pdf, number=1):
         # set number string
         numstr = f"{number:2}. "
+        # we want this to be wide enough to fit up to 99 numbers
         pdf.cell(pdf.get_string_width("99.") + 2 + pdf.c_margin * 2, 14, txt=numstr, align="L", border=0)
