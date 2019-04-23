@@ -1,3 +1,4 @@
 #! /bin/bash
-
-/opt/study-buddy/study-buddy.py
+arg1="$1"
+shift 1
+/opt/study-buddy/study-buddy.py "$@"
