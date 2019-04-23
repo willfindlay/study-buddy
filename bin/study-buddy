@@ -1,4 +1,2 @@
 #! /bin/bash
-arg1="$1"
-shift 1
 /opt/study-buddy/study-buddy.py "$@"
