@@ -2,7 +2,9 @@
 
 import re
 import argparse
-from fpdf import FPDF
+from math import floor
+from card import *
+from unit_test import test_cards
 
 class MarkdownEngine:
     def __init__(self, outfile="flashcards.pdf", infile="in.md", debug=False):
@@ -21,7 +23,6 @@ class MarkdownEngine:
         # set cards array to empty
         self.cards = []
 
-
     # set the file for output
     # extensions are ignored and .pdf is assumed
     def set_outfile(self, outfile):
@@ -33,8 +34,6 @@ class MarkdownEngine:
             # if no extension provided, add one
             self.outfile = outfile + ".pdf"
         return self
-
-
 
     # set the file for input
     # extensions are ignored and .md is assumed
@@ -48,79 +47,25 @@ class MarkdownEngine:
             self.infile = infile + ".md"
         return self
 
-
-
     # reset the PDF object
     def reset_pdf(self):
         # create PDF object
-        self.pdf = FPDF("L", "pt", (360,576))
+        self.pdf = Cards("L", "pt", (360,576))
         self.pdf.set_font("Arial", size=12)
         self.pdf.set_margins(40,30)
         return self
 
-
-
     # generate the flashcards
-    def generate_flashcards(self):
-        # prints a big title for a section
-        def print_section(title):
-            self.pdf.add_page()
-            self.pdf.set_font_size(30)
-            self.pdf.multi_cell(0, 30, txt=title, align="C", border=1 if self.debug else 0)
-            self.pdf.set_font_size(12)
-
-        # print the title of a card
-        def print_title(card):
-            self.pdf.add_page()
-            self.pdf.set_font_size(20)
-            self.pdf.multi_cell(0, 20, txt=card.title, align="C", border=1 if self.debug else 0)
-            self.pdf.ln()
-            self.pdf.set_font_size(12)
-
-        # print a subsection
-        def print_subsection(subsection, first=False):
-            if not first:
-                self.pdf.ln()
-            self.pdf.set_font_size(16)
-            self.pdf.multi_cell(0, 16, txt=subsection.text, align="L", border=1 if self.debug else 0)
-            self.pdf.set_font_size(12)
-
-        # print the actual card itself
-        def print_card(card):
-            # set bullet point character
-            bullet = chr(149)
-            # add page without answers
-            print_title(card)
-            # add page with answers
-            print_title(card)
-            for i in range(len(card.contents)):
-                line = card.contents[i]
-                if type(line) == Subsection:
-                    print_subsection(line, i == 0)
-                else:
-                    spacing = card.spacing[i]
-                    # add spacing
-                    self.pdf.cell(self.pdf.get_string_width(spacing) + self.pdf.c_margin * 2, 14, txt=spacing, align="L", border=1 if self.debug else 0)
-                    # draw bullet point
-                    self.pdf.cell(self.pdf.get_string_width(bullet) + self.pdf.c_margin * 2, 14, txt=bullet, align="L", border=1 if self.debug else 0)
-                    # draw text
-                    self.pdf.multi_cell(0, 14, txt=line, align="L", border=1 if self.debug else 0)
-
-        self.parse_cards()
+    def generate_flashcards(self, spaces):
+        self.parse_cards(spaces)
         self.reset_pdf()
 
-        # print sections and cards
         for card in self.cards:
-            if card.section == True:
-                print_section(card.title)
-            else:
-                print_card(card)
+            self.pdf.add_card(card)
 
-        self.pdf.output(self.outfile)
+        self.pdf.export(self.outfile)
 
-
-
-    def parse_cards(self):
+    def parse_cards(self, spaces):
         # reset cards
         self.cards = []
 
@@ -128,93 +73,73 @@ class MarkdownEngine:
         with open(self.infile) as f:
             # set card to None for now
             card = None
+            # initialize point number for numbered points
+            point_number = 1
             for line in f:
                 # attempt to find section, card, or line
-                section = re.match(r"^\s*#\s+(.*)", line)
-                cardtitle = re.match(r"^\s*##\s+(.*)", line)
-                subsection = re.match(r"^\s*####*\s+(.*)", line)
-                text = re.match(r"^(\s*)(?:[\-\*\+]|\d\.|\d\)|\(\d\))\s+(.*)", line)
+                cardtitle = re.match(r"^\s*#\s+(.*)", line)
+                subtitle = re.match(r"^\s*##\s+(.*)", line)
 
-                # try to add a section
-                try:
-                    section[1]
+                # TODO: match these
+                subsubtitle = re.match(r"^\s*###\s+(.*)", line)
+                subsubsubtitle = re.match(r"^\s*#####*\s+(.*)", line)
 
-                    card = Card(title=section[1], section=True)
-                    self.cards.append(card)
-                    card = None
-
-                    continue
-                except TypeError:
-                    pass
+                bulleted = re.match(r"^(\s*)(?:[\-\*\+])\s+(.*)", line)
+                numbered = re.match(r"^(\s*)(?:\d\.|\d\)|\(\d\))\s+(.*)", line)
 
                 # try to add a card
                 try:
                     cardtitle[1]
 
-                    if card is not None:
-                        self.cards.append(card)
-                    card = Card(title=cardtitle[1])
+                    card = Card(title_str=cardtitle[1])
+                    self.cards.append(card)
 
                     continue
                 except TypeError:
                     pass
 
-                # try to add a subsection
+                # try to add a subtitle
                 try:
-                    subsection[1]
+                    subtitle[1]
 
+                    content = Subtitle(text=subtitle[1])
                     if card is not None:
-                        card.add_point("", Subsection(subsection[1]))
+                        card.add_content(content)
 
                     continue
                 except TypeError:
                     pass
 
-                # try to add a bullet point
+                # TODO: implement subsub titles and subsubsub titles
+
+                # try to add a bulleted point
                 try:
-                    text[2]
+                    bulleted[1]
 
+                    level = floor(len(bulleted[1]) / spaces)
+
+                    content = BulletedPoint(text=bulleted[2], level=level)
                     if card is not None:
-                        card.add_point(text[1], text[2])
+                        card.add_content(content)
 
                     continue
                 except TypeError:
                     pass
 
-            # append last card
-            if card is not None:
-                self.cards.append(card)
+                # try to add a numbered point
+                try:
+                    numbered[1]
 
+                    level = floor(len(numbered[1]) / spaces)
 
+                    content = NumberedPoint(text=numbered[2], number=point_number, level=level)
+                    if card is not None:
+                        card.add_content(content)
+                        point_number += 1
 
-class Card:
-    def __init__(self, title="Untitled", section=False):
-        # set title
-        self.title = title
-
-        # set contents
-        self.contents = []
-
-        # set spacing
-        self.spacing = []
-
-        # set section
-        self.section = section
-
-
-
-    # add a bullet point to card contents
-    def add_point(self, spacing, point):
-        self.spacing.append(spacing)
-        self.contents.append(point)
-
-
-
-class Subsection:
-    def __init__(self, text):
-        self.text = text
-
-
+                    continue
+                except TypeError:
+                    point_number = 1
 
 if __name__ == "__main__":
     # parse arguments
@@ -223,10 +148,12 @@ if __name__ == "__main__":
             help="Set the filename for input. Extensions are ignored and .md is assumed.")
     parser.add_argument("-o", "--out", metavar='OUTFILE', default="flashcards.pdf",
             help="Set the filename for output. Extensions are ignored and .pdf is assumed. (Default: flashcards.pdf)")
+    parser.add_argument("-s", "--spaces", metavar='SPACES', type=int, default=4,
+            help="Set the number of spaces per indent. (Default: 4)")
     args = parser.parse_args()
 
     # create markdown engine
     me = MarkdownEngine(outfile=args.out, infile=args.input, debug=False)
 
     # generate flashcards
-    me.generate_flashcards()
+    me.generate_flashcards(args.spaces)
