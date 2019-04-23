@@ -2,6 +2,7 @@
 
 import re
 import argparse
+from math import floor
 from card import *
 from unit_test import test_cards
 
@@ -55,17 +56,16 @@ class MarkdownEngine:
         return self
 
     # generate the flashcards
-    def generate_flashcards(self):
-        self.parse_cards()
+    def generate_flashcards(self, spaces):
+        self.parse_cards(spaces)
         self.reset_pdf()
 
         for card in self.cards:
-            print("exporting a card")
             self.pdf.add_card(card)
 
         self.pdf.export(self.outfile)
 
-    def parse_cards(self):
+    def parse_cards(self, spaces):
         # reset cards
         self.cards = []
 
@@ -79,20 +79,17 @@ class MarkdownEngine:
                 # attempt to find section, card, or line
                 cardtitle = re.match(r"^\s*#\s+(.*)", line)
                 subtitle = re.match(r"^\s*##\s+(.*)", line)
-                # TODO: match me
+
+                # TODO: match these
                 subsubtitle = re.match(r"^\s*###\s+(.*)", line)
-                # TODO: match me
                 subsubsubtitle = re.match(r"^\s*#####*\s+(.*)", line)
-                # TODO: match me
+
                 bulleted = re.match(r"^(\s*)(?:[\-\*\+])\s+(.*)", line)
-                # TODO: match me
                 numbered = re.match(r"^(\s*)(?:\d\.|\d\)|\(\d\))\s+(.*)", line)
 
                 # try to add a card
                 try:
                     cardtitle[1]
-
-                    print("found a card")
 
                     card = Card(title_str=cardtitle[1])
                     self.cards.append(card)
@@ -119,7 +116,9 @@ class MarkdownEngine:
                 try:
                     bulleted[1]
 
-                    content = BulletedPoint(text=bulleted[2], level=len(bulleted[1]))
+                    level = floor(len(bulleted[1]) / spaces)
+
+                    content = BulletedPoint(text=bulleted[2], level=level)
                     if card is not None:
                         card.add_content(content)
 
@@ -131,7 +130,9 @@ class MarkdownEngine:
                 try:
                     numbered[1]
 
-                    content = NumberedPoint(text=numbered[2], number=point_number, level=len(numbered[1]))
+                    level = floor(len(numbered[1]) / spaces)
+
+                    content = NumberedPoint(text=numbered[2], number=point_number, level=level)
                     if card is not None:
                         card.add_content(content)
                         point_number += 1
@@ -147,10 +148,12 @@ if __name__ == "__main__":
             help="Set the filename for input. Extensions are ignored and .md is assumed.")
     parser.add_argument("-o", "--out", metavar='OUTFILE', default="flashcards.pdf",
             help="Set the filename for output. Extensions are ignored and .pdf is assumed. (Default: flashcards.pdf)")
+    parser.add_argument("-s", "--spaces", metavar='SPACES', type=int, default=4,
+            help="Set the number of spaces per indent. (Default: 4)")
     args = parser.parse_args()
 
     # create markdown engine
     me = MarkdownEngine(outfile=args.out, infile=args.input, debug=False)
 
     # generate flashcards
-    me.generate_flashcards()
+    me.generate_flashcards(args.spaces)
