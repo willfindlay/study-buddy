@@ -2,7 +2,9 @@
 
 ## What is it?
 
-Study Buddy is a simple flashcard generator which parses your markdown files and generates flashcards for you. It supports cards with titles, subtitles, subsubtitles, subsubsubtitles, bulleted points, numbered points, and plaintext. Currently it does not support images.
+Study Buddy is a simple flashcard generator which parses your markdown files and generates flashcards for you. It supports cards with titles, subtitles, subsubtitles, subsubsubtitles, bulleted points, numbered points, and plaintext.
+
+Currently, it does not support images (and I have no plans to add image support as iamges really don't belong on flashcards).
 
 ## How to install?
 
