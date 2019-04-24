@@ -10,7 +10,7 @@ Currently, it does not support images (and I have no plans to add image support 
 
 1. python3
 1. pip3
-1. fdpf (installed with the included Makefile)
+1. fpdf (installed with the included Makefile)
 
 ## How to install?
 
