@@ -28,7 +28,7 @@ Currently, it does not support images (and I have no plans to add image support 
 
 ## How to use it?
 
-Once you have installed, just run `$ study-budy <file.md>`.
+Once you have installed the script, just run `$ study-budy <file.md>`.
 
 Optional parameters exist to set the number of spaces per indent in your original markdown file (default 4) and to set a location and name for the output file (default flashcards.pdf).
 
