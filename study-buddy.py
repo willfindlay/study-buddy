@@ -71,6 +71,8 @@ class MarkdownEngine:
 
         # read in card from the file
         with open(self.infile) as f:
+            # set first subsection to true
+            first = True
             # set card to None for now
             card = None
             # initialize point number for numbered points
@@ -79,11 +81,8 @@ class MarkdownEngine:
                 # attempt to find section, card, or line
                 cardtitle = re.match(r"^\s*#\s+(.*)", line)
                 subtitle = re.match(r"^\s*##\s+(.*)", line)
-
-                # TODO: match these
                 subsubtitle = re.match(r"^\s*###\s+(.*)", line)
                 subsubsubtitle = re.match(r"^\s*#####*\s+(.*)", line)
-
                 bulleted = re.match(r"^(\s*)(?:[\-\*\+])\s+(.*)", line)
                 numbered = re.match(r"^(\s*)(?:\d\.|\d\)|\(\d\))\s+(.*)", line)
 
@@ -93,6 +92,7 @@ class MarkdownEngine:
 
                     card = Card(title_str=cardtitle[1])
                     self.cards.append(card)
+                    first = True
 
                     continue
                 except TypeError:
@@ -102,7 +102,20 @@ class MarkdownEngine:
                 try:
                     subtitle[1]
 
-                    content = Subtitle(text=subtitle[1])
+                    content = Subtitle(text=subtitle[1], first=first)
+                    if card is not None:
+                        card.add_content(content)
+                        first = False
+
+                    continue
+                except TypeError:
+                    pass
+
+                # try to add a subsubtitle
+                try:
+                    subsubtitle[1]
+
+                    content = Subsubtitle(text=subsubtitle[1])
                     if card is not None:
                         card.add_content(content)
 
@@ -110,7 +123,17 @@ class MarkdownEngine:
                 except TypeError:
                     pass
 
-                # TODO: implement subsub titles and subsubsub titles
+                # try to add a subsubsubtitle
+                try:
+                    subsubsubtitle[1]
+
+                    content = Subsubsubtitle(text=subsubsubtitle[1])
+                    if card is not None:
+                        card.add_content(content)
+
+                    continue
+                except TypeError:
+                    pass
 
                 # try to add a bulleted point
                 try:
@@ -140,6 +163,10 @@ class MarkdownEngine:
                     continue
                 except TypeError:
                     point_number = 1
+
+                # add plaintext if all else failed
+                if card is not None and line.strip() is not '':
+                    card.add_content(Text(text=line))
 
 if __name__ == "__main__":
     # parse arguments

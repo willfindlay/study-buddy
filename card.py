@@ -5,6 +5,8 @@ class Cards(FPDF):
         super().__init__(orientation, unit, format)
         self.cards = []
         self.curr_card = 0
+        # we do not want to auto page break
+        self.set_auto_page_break(False)
 
     def add_card(self, card):
         self.cards.append(card)
@@ -21,6 +23,10 @@ class Cards(FPDF):
         for card in self.cards:
             # draw card
             card.to_pdf(self)
+            # check to see if we went over the page; if so, print a warning
+            page_height = self.fw_pt if self.def_orientation == "L" else self.fh_pt
+            if self.get_y() > page_height:
+                print(f"WARNING: Card \"{card.title.text}\" is too long. Output truncated.")
             # increment card number
             self.curr_card += 1
         # write card to file
@@ -31,24 +37,34 @@ class Card:
     def __init__(self, title_str = "Untitled"):
         self.title = Title(title_str)
         self.contents = []
+        self.printed = []
 
     def add_content(self, content):
         self.contents.append(content)
 
+    def soft_page_break(self, pdf):
+        pdf.add_page()
+        for printed in self.printed:
+            printed.to_pdf(pdf)
+
     def to_pdf(self, pdf):
-        # keep track of whether conent is first for spacing
-        first = True
         # blank page with just title
         pdf.add_page()
         # page with information
         pdf.add_page()
         # card contents
         for content in self.contents:
+            # insert an extra page break before printing subtitles
+            # but only if they are not the first subtitles
+            if type(content) is Subtitle and not content.first:
+                self.soft_page_break(pdf)
+
+            self.printed.append(content)
+            content.to_pdf(pdf)
+
+            # insert an extra page break after printing subtitles
             if type(content) is Subtitle:
-                content.to_pdf(pdf, first=first)
-            else:
-                content.to_pdf(pdf)
-            first = False
+                self.soft_page_break(pdf)
 
 class CardContents:
     def __init__(self, text = "NULL"):
@@ -63,22 +79,38 @@ class CardContents:
 # a card title
 class Title(CardContents):
     def to_pdf(self, pdf):
-        old_font_size = pdf.font_size
-        pdf.set_font_size(20)
-        pdf.multi_cell(0, 20, txt=self.text, align="C", border=0)
-        pdf.ln()
-        pdf.set_font_size(old_font_size)
+        pdf.set_font("Arial","B",24)
+        pdf.multi_cell(0, 24, txt=self.text, align="C", border=0)
+        pdf.set_font("Arial","",12)
+        pdf.ln(12)
 
 # a subtitle within a card
 class Subtitle(CardContents):
-    def to_pdf(self, pdf, first=False):
-        old_font_size = pdf.font_size
-        pdf.set_font_size(16)
+    def __init__(self, text = "NULL", first=False):
+        super().__init__(text)
+        self.first = first
+
+    def to_pdf(self, pdf):
+        pdf.set_font("Arial","B",20)
         # add a blank space if necessary
-        if not first:
+        if not self.first:
             pdf.ln()
+        pdf.multi_cell(0, 20, txt=self.text, align="L", border=0)
+        pdf.set_font("Arial","",12)
+
+# a subsubtitle within a card
+class Subsubtitle(CardContents):
+    def to_pdf(self, pdf):
+        pdf.set_font("Arial","B",16)
         pdf.multi_cell(0, 16, txt=self.text, align="L", border=0)
-        pdf.set_font_size(old_font_size)
+        pdf.set_font("Arial","",12)
+
+# a subsubsubtitle within a card
+class Subsubsubtitle(CardContents):
+    def to_pdf(self, pdf):
+        pdf.set_font("Arial","B",12)
+        pdf.multi_cell(0, 16, txt=self.text, align="L", border=0)
+        pdf.set_font("Arial","B",12)
 
 # a bulleted point
 class BulletedPoint(CardContents):
@@ -117,3 +149,10 @@ class NumberedPoint(BulletedPoint):
         numstr = f"{number:2}. "
         # we want this to be wide enough to fit up to 99 numbers
         pdf.cell(pdf.get_string_width("99.") + 2 + pdf.c_margin * 2, 14, txt=numstr, align="L", border=0)
+
+# a plaintext paragraph
+class Text(CardContents):
+    def to_pdf(self, pdf):
+        pdf.set_font_size(12)
+        pdf.multi_cell(0, 12, txt=self.text, align="L", border=0)
+        pdf.set_font_size(12)

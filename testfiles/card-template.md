@@ -18,3 +18,15 @@
 1) Run the script
 7. ???
 (7) Profit
+
+# Many Titles
+
+## Sub
+
+Here is some plaintext
+
+### Subsub
+
+#### Subsubsub
+
+## Another Sub
