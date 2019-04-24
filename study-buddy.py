@@ -118,6 +118,7 @@ class MarkdownEngine:
                     content = Subsubtitle(text=subsubtitle[1])
                     if card is not None:
                         card.add_content(content)
+                        first = False
 
                     continue
                 except TypeError:
@@ -130,6 +131,7 @@ class MarkdownEngine:
                     content = Subsubsubtitle(text=subsubsubtitle[1])
                     if card is not None:
                         card.add_content(content)
+                        first = False
 
                     continue
                 except TypeError:
@@ -144,6 +146,7 @@ class MarkdownEngine:
                     content = BulletedPoint(text=bulleted[2], level=level)
                     if card is not None:
                         card.add_content(content)
+                        first = False
 
                     continue
                 except TypeError:
@@ -159,6 +162,7 @@ class MarkdownEngine:
                     if card is not None:
                         card.add_content(content)
                         point_number += 1
+                        first = False
 
                     continue
                 except TypeError:
@@ -167,6 +171,7 @@ class MarkdownEngine:
                 # add plaintext if all else failed
                 if card is not None and line.strip() is not '':
                     card.add_content(Text(text=line))
+                    first = False
 
 if __name__ == "__main__":
     # parse arguments
