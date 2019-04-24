@@ -79,8 +79,8 @@ class CardContents:
 # a card title
 class Title(CardContents):
     def to_pdf(self, pdf):
-        pdf.set_font("Arial","B",24)
-        pdf.multi_cell(0, 24, txt=self.text, align="C", border=0)
+        pdf.set_font("Arial","B",20)
+        pdf.multi_cell(0, 20, txt=self.text, align="C", border=0)
         pdf.set_font("Arial","",12)
         pdf.ln(12)
 
@@ -91,11 +91,11 @@ class Subtitle(CardContents):
         self.first = first
 
     def to_pdf(self, pdf):
-        pdf.set_font("Arial","B",20)
+        pdf.set_font("Arial","B",18)
         # add a blank space if necessary
         if not self.first:
             pdf.ln()
-        pdf.multi_cell(0, 20, txt=self.text, align="L", border=0)
+        pdf.multi_cell(0, 18, txt=self.text, align="L", border=0)
         pdf.set_font("Arial","",12)
 
 # a subsubtitle within a card
@@ -108,8 +108,8 @@ class Subsubtitle(CardContents):
 # a subsubsubtitle within a card
 class Subsubsubtitle(CardContents):
     def to_pdf(self, pdf):
-        pdf.set_font("Arial","B",12)
-        pdf.multi_cell(0, 16, txt=self.text, align="L", border=0)
+        pdf.set_font("Arial","B",14)
+        pdf.multi_cell(0, 14, txt=self.text, align="L", border=0)
         pdf.set_font("Arial","B",12)
 
 # a bulleted point
