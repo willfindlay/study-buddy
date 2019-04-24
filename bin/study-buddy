@@ -1,2 +1,2 @@
 #! /bin/bash
-/opt/study-buddy/study-buddy.py "$@"
+python3 /opt/study-buddy/study-buddy.py "$@"
