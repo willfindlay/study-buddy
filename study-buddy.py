@@ -71,6 +71,8 @@ class MarkdownEngine:
 
         # read in card from the file
         with open(self.infile) as f:
+            # set first subsection to true
+            first = True
             # set card to None for now
             card = None
             # initialize point number for numbered points
@@ -93,6 +95,7 @@ class MarkdownEngine:
 
                     card = Card(title_str=cardtitle[1])
                     self.cards.append(card)
+                    first = True
 
                     continue
                 except TypeError:
@@ -102,9 +105,10 @@ class MarkdownEngine:
                 try:
                     subtitle[1]
 
-                    content = Subtitle(text=subtitle[1])
+                    content = Subtitle(text=subtitle[1], first=first)
                     if card is not None:
                         card.add_content(content)
+                        first = False
 
                     continue
                 except TypeError:
