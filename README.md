@@ -6,11 +6,25 @@ Study Buddy is a study tool which parses your markdown files and generates flash
 
 Currently, it does not support images (and I have no plans to add image support as iamges really don't belong on flashcards).
 
+## Requirements
+
+1. python3
+1. pip3
+1. fdpf (installed with the included Makefile)
+
 ## How to install?
+
+### GNU/Linux
 
 1. `$ git clone https://github.com/HousedHorse/study-buddy`
 1. `$ cd study-buddy`
 1. `$ sudo make install`
+
+### MacOS
+
+1. `$ git clone https://github.com/HousedHorse/study-buddy`
+1. `$ cd study-buddy`
+1. `$ sudo make mac-install`
 
 ## How to use it?
 
