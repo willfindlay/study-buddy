@@ -91,26 +91,26 @@ class Subtitle(CardContents):
         self.first = first
 
     def to_pdf(self, pdf):
-        pdf.set_font("Arial","B",18)
+        pdf.set_font("Arial","B",16)
         # add a blank space if necessary
         if not self.first:
-            pdf.ln()
-        pdf.multi_cell(0, 18, txt=self.text, align="L", border=0)
+            pdf.ln(12)
+        pdf.multi_cell(0, 16, txt=self.text, align="L", border=0)
         pdf.set_font("Arial","",12)
 
 # a subsubtitle within a card
 class Subsubtitle(CardContents):
     def to_pdf(self, pdf):
-        pdf.set_font("Arial","B",16)
-        pdf.multi_cell(0, 16, txt=self.text, align="L", border=0)
+        pdf.set_font("Arial","B",14)
+        pdf.multi_cell(0, 14, txt=self.text, align="L", border=0)
         pdf.set_font("Arial","",12)
 
 # a subsubsubtitle within a card
 class Subsubsubtitle(CardContents):
     def to_pdf(self, pdf):
-        pdf.set_font("Arial","B",14)
-        pdf.multi_cell(0, 14, txt=self.text, align="L", border=0)
         pdf.set_font("Arial","B",12)
+        pdf.multi_cell(0, 12, txt=self.text, align="L", border=0)
+        pdf.set_font("Arial","",12)
 
 # a bulleted point
 class BulletedPoint(CardContents):
@@ -130,7 +130,7 @@ class BulletedPoint(CardContents):
         # return old font
         pdf.set_font(old_font)
         # draw text
-        pdf.multi_cell(0, 14, txt=self.text, align="L", border=0)
+        pdf.multi_cell(0, 12, txt=self.text, align="L", border=0)
 
     def draw_point(self, pdf, number=1):
         # set bullet character
